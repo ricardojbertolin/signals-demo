@@ -1,0 +1,25 @@
+.light-wrapper {
+    border: 1px solid black;
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    align-items: center;
+}
+
+.light-circle {
+    border: 1px solid black;
+    border-radius: 50%;
+    $light-size: 35px;
+    height: $light-size;
+    width: $light-size;
+}
+
+.red {
+    background-color: red;
+}
+
+.green {
+    background-color: green;
+}

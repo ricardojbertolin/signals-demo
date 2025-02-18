@@ -1,12 +1,18 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { JunctionComponent } from './components/junction/junction.component';
+import { JunctionControllerService } from './services/junction-controller.service';
 
 @Component({
-  selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    imports: [
+        JunctionComponent,
+        AsyncPipe
+    ],
+    providers: [JunctionControllerService],
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'signals-demo';
+    readonly junctionControllerService = inject(JunctionControllerService);
 }

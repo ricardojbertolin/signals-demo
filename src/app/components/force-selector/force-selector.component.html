@@ -1,0 +1,7 @@
+<p>Force light:</p>
+<select [formControl]="forcedFormControl">
+  <option [value]="lightColors.Red">Red</option>
+  <option [value]="lightColors.Yellow">Yellow</option>
+  <option [value]="lightColors.Green">Green</option>
+</select>
+<button (click)="forceLightColor()">Force!</button>

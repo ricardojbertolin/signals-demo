@@ -1,0 +1,12 @@
+<p>Traffic light</p>
+<div class="light-wrapper">
+  <div class="light-circle"
+       [class.red]="lightColor() === LightColor.Red">
+  </div>
+  <div class="light-circle"
+       [class.yellow]="lightColor() === LightColor.Yellow">
+  </div>
+  <div class="light-circle"
+       [class.green]="lightColor() === LightColor.Green">
+  </div>
+</div>
