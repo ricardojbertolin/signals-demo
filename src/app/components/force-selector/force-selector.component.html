@@ -1,0 +1,24 @@
+<h4>Force manual light color</h4>
+<div class="flex-row buttons-wrapper">
+  <button
+      class="red"
+      mat-mini-fab
+      [class.active]="(junctionControllerService.lightColorForced$ | async) === lightColors.Red"
+      (click)="forceLightColor(lightColors.Red)">
+    <mat-icon fontIcon="traffic"/>
+  </button>
+  <button
+      class="yellow"
+      mat-mini-fab
+      [class.active]="(junctionControllerService.lightColorForced$ | async) === lightColors.Yellow"
+      (click)="forceLightColor(lightColors.Yellow)">
+    <mat-icon fontIcon="traffic"/>
+  </button>
+  <button
+      class="green"
+      mat-mini-fab
+      [class.active]="(junctionControllerService.lightColorForced$ | async) === lightColors.Green"
+      (click)="forceLightColor(lightColors.Green)">
+    <mat-icon fontIcon="traffic"/>
+  </button>
+</div>

@@ -1,0 +1,50 @@
+:host {
+    padding: 20px;
+    border: 1px solid black;
+    display: flex;
+    width: 900px;
+    flex-direction: column;
+    border-radius: 15px;
+    box-shadow: var(--mat-sys-level5);
+
+    .area-wrapper {
+        display: grid;
+        grid-template-columns: 70% 30%;
+        width: 100%;
+    }
+
+    .light-area {
+        &-wrapper {
+            gap: 30px;
+            justify-content: center;
+        }
+    }
+
+    .notification-area {
+        margin: 40px 0 20px 0;
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        &--text {
+            margin: 0;
+            height: 20px;
+            text-align: center;
+
+            &-animated {
+                animation: blink 1s infinite;
+            }
+        }
+    }
+}

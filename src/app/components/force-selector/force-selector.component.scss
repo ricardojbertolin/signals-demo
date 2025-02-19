@@ -1,0 +1,30 @@
+@use '@angular/material' as mat;
+
+:host {
+
+    .red {
+        @include mat.icon-overrides((
+            color: red
+        ));
+    }
+
+    .green {
+        @include mat.icon-overrides((
+            color: green
+        ));
+    }
+
+    .yellow {
+        @include mat.icon-overrides((
+            color: yellow
+        ));
+    }
+
+
+    .buttons-wrapper {
+        gap: 20px;
+    }
+
+
+}
+
