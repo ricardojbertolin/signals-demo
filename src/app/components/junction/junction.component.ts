@@ -57,6 +57,8 @@ export class JunctionComponent {
         if (request && !this.pedestrianRequestStarted && !this.forcedColor) {
             this.pedestrianRequested = true;
             this.requestsText = 'Pedestrian cycle requested';
+        } else if (request && this.forcedColor) {
+            this.junctionControllerService.resetRequestPedestrianCycle();
         }
     }
 
@@ -66,7 +68,9 @@ export class JunctionComponent {
             this.pedestrianLightColor = LightColor.Red;
             this.trafficLightColor = color;
             this.statusText = `Color forced for a cycle is ${ color }`;
+            this.requestsText = '';
             this.forcedColorCycleTimes = 0;
+            this.junctionControllerService.resetRequestPedestrianCycle();
         }
     }
 

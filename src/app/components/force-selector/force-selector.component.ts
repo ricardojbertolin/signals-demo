@@ -1,22 +1,30 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatMiniFabButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
 
 @Component({
     selector: 'app-force-selector',
     imports: [
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        MatIcon,
+        MatMiniFabButton,
+        AsyncPipe
     ],
     templateUrl: './force-selector.component.html',
-    styleUrl: './force-selector.component.scss'
+    styleUrls: [
+        '../shared/force-styles.scss',
+        './force-selector.component.scss'
+    ]
 })
 export class ForceSelectorComponent {
-    readonly forcedFormControl = new FormControl<LightColor>(LightColor.Red);
     readonly lightColors = LightColor;
-    private readonly junctionControllerService = inject(JunctionControllerService);
+    readonly junctionControllerService = inject(JunctionControllerService);
 
-    forceLightColor() {
-        this.junctionControllerService.forceLightColor(this.forcedFormControl.value!);
+    forceLightColor(lightColor: LightColor) {
+        this.junctionControllerService.forceLightColor(lightColor);
     }
 }

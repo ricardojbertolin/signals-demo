@@ -1,24 +1,28 @@
 <div class="area-wrapper">
-  <div class="flex-column light-area">
-    <h2>Lights section</h2>
+
+  <div class="flex-column-centered light-area">
+    <h2 class="center-text">LIGHTS SECTION</h2>
     <div class="flex-row light-area-wrapper">
       <app-traffic-light
           [lightColor]="trafficLightColor"/>
       <app-pedestrian-light
           [lightColor]="pedestrianLightColor"/>
     </div>
+    <div class="flex-column-centered notification-area">
+      <p class="notification-area--text notification-area--text-animated">{{ requestsText }}</p>
+      <p class="notification-area--text">
+        <b>Light status:</b>
+        {{ statusText }}
+      </p>
+    </div>
   </div>
-  <div class="flex-column operational-area">
-    <h2>Operational section</h2>
+
+  <div class="flex-column-centered operational-area">
+    <h2 class="center-text">OPERATIONAL SECTION</h2>
     <app-pedestrian-request/>
     <app-force-selector/>
   </div>
+
 </div>
 
-<div class="flex-column notification-area">
-  <p class="notification-area--text notification-area--text-animated">{{ requestsText }}</p>
-  <p class="notification-area--text">
-    <b>Light status:</b>
-    {{ statusText }}
-  </p>
-</div>
+

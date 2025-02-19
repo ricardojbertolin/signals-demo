@@ -5,7 +5,8 @@ import { LightColor } from '../../app.definitions';
     selector: 'app-traffic-light',
     imports: [],
     templateUrl: './traffic-light.component.html',
-    styleUrl: './traffic-light.component.scss'
+    styleUrl: '../shared/light-styles.scss',
+    host: { class: 'flex-column-centered' }
 })
 export class TrafficLightComponent {
     lightColor = input(LightColor.Red);

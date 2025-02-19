@@ -5,7 +5,8 @@ import { LightColor } from '../../app.definitions';
     selector: 'app-pedestrian-light',
     imports: [],
     templateUrl: './pedestrian-light.component.html',
-    styleUrl: './pedestrian-light.component.scss'
+    styleUrl: '../shared/light-styles.scss',
+    host: { class: 'flex-column-centered' }
 })
 export class PedestrianLightComponent {
 

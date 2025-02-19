@@ -1,39 +1,27 @@
 :host {
-    margin: 10px auto;
     padding: 20px;
     border: 1px solid black;
     display: flex;
-    width: 800px;
+    width: 900px;
     flex-direction: column;
-
-    .flex-column {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .flex-row {
-        display: flex;
-        flex-direction: row;
-    }
+    border-radius: 15px;
+    box-shadow: var(--mat-sys-level5);
 
     .area-wrapper {
         display: grid;
-        grid-template-columns: 50% 50%;
+        grid-template-columns: 70% 30%;
         width: 100%;
     }
 
     .light-area {
         &-wrapper {
             gap: 30px;
+            justify-content: center;
         }
     }
 
-    .operational-area {
-
-    }
-
     .notification-area {
-        margin: 10px;
+        margin: 40px 0 20px 0;
 
         @keyframes blink {
             0% {
@@ -52,6 +40,7 @@
         &--text {
             margin: 0;
             height: 20px;
+            text-align: center;
 
             &-animated {
                 animation: blink 1s infinite;
