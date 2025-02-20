@@ -11,8 +11,14 @@
     <div class="flex-column-centered notification-area">
       <p class="notification-area--text notification-area--text-animated">{{ requestsText }}</p>
       <p class="notification-area--text">
-        <b>Light status:</b>
+        <b>Light status</b>
+        <br/>
         {{ statusText }}
+      </p>
+      <p class="notification-area--text">
+        <b>Controller light</b>
+        <br/>
+        {{ lightColorCycleInput$.getValue() }}
       </p>
     </div>
   </div>
