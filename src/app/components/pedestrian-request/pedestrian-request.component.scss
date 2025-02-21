@@ -1,0 +1,13 @@
+@use '@angular/material' as mat;
+
+:host {
+
+    @include mat.fab-overrides((
+        small-container-color: #d8d8d8
+    ));
+
+    .active {
+        border: 2px solid var(--mat-sys-primary);
+    }
+
+}

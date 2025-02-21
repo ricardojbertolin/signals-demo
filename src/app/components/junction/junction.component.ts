@@ -1,80 +1,48 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { lastValueFrom, Subscription, takeWhile } from 'rxjs';
+import { lastValueFrom, takeWhile } from 'rxjs';
 import { CYCLE_NUM, LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
-import { ForceSelectorComponent } from '../force-selector/force-selector.component';
 import { PedestrianLightComponent } from '../pedestrian-light/pedestrian-light.component';
 import { PedestrianRequestComponent } from '../pedestrian-request/pedestrian-request.component';
 import { TrafficLightComponent } from '../traffic-light/traffic-light.component';
+import { getPedestrianLightColor, getRequestsText, getStatusText, getTrafficLightColor, pedestrianStageShouldBeStarted } from './junction.utils';
 
 @Component({
     selector: 'app-junction',
     imports: [
         PedestrianRequestComponent,
-        ForceSelectorComponent,
         PedestrianLightComponent,
-        TrafficLightComponent
+        TrafficLightComponent,
+        TitleCasePipe
     ],
     templateUrl: './junction.component.html',
-    styleUrl: './junction.component.scss'
+    styleUrl: './junction.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JunctionComponent {
-
+    // inputs
     lightColorCycle = input<LightColor | null>();
     pedestrianRequest = input<boolean | null>();
-    lightColorForced = input<LightColor | null>();
-
     // template bound vars
-    requestsText = computed(() => {
-        const pedestrianRequestAccepted = this.pedestrianRequest() && !this.lightColorForced() && !this.pedestrianRequestStarted$();
-        return pedestrianRequestAccepted ? 'Pedestrian cycle requested' : '';
-    });
-    statusText = computed(() => {
-        return this.lightColorForced()
-            ? `Color forced for a cycle is ${ this.lightColorForced() }`
-            : this.pedestrianRequestStarted$()
-                ? 'Attending pedestrian request for 1 cycle'
-                : `Controller light color is ${ this.lightColorCycle() }`;
-
-    });
-
-    pedestrianLightColor = computed(() =>
-        this.pedestrianRequestStarted$() ? LightColor.Green : LightColor.Red
-    );
-
-    trafficLightColor = computed(() => {
-        return this.lightColorForced()
-            ?? (this.pedestrianRequestStarted$()
-                ? LightColor.Red
-                : this.lightColorCycle()!);
-    });
-
+    requestsText = computed(() => getRequestsText(this.pedestrianRequest()!, this.pedestrianRequestStarted$()));
+    statusText = computed(() => getStatusText(this.pedestrianRequestStarted$()));
+    pedestrianLightColor = computed(() => getPedestrianLightColor(this.pedestrianRequestStarted$()));
+    trafficLightColor = computed(() => getTrafficLightColor(this.pedestrianRequestStarted$(), this.lightColorCycle()!));
     // signals for managing state
     private readonly pedestrianRequestStarted$ = signal(false);
     // others
     private readonly junctionControllerService = inject(JunctionControllerService);
     private lightColorCycle$ = toObservable(this.lightColorCycle);
-    private subscription: Subscription | undefined;
 
     constructor() {
-        effect(() => this.stopForcedColorStageAfterStarted());
         effect(() => this.startPedestrianStageWhenRequested());
         effect(() => this.stopPedestrianStageAfterCycle());
     }
 
-    private async stopForcedColorStageAfterStarted() {
-        if (this.lightColorForced()) {
-            this.subscription?.unsubscribe();
-            this.subscription = this.startCycleSubscription()
-                                    .subscribe({
-                                        complete: () => this.junctionControllerService.resetForceLightColor()
-                                    });
-        }
-    }
-
     private startPedestrianStageWhenRequested() {
-        if (!this.lightColorForced() && !this.pedestrianRequestStarted$() && this.pedestrianRequest() && this.lightColorCycle() === LightColor.Red) {
+        if (pedestrianStageShouldBeStarted(this.pedestrianRequestStarted$(), this.pedestrianRequest()!, this.lightColorCycle()!)) {
             this.pedestrianRequestStarted$.set(true);
         }
     }

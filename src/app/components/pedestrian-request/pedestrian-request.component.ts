@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatMiniFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { JunctionControllerService } from '../../services/junction-controller.service';
@@ -10,10 +10,9 @@ import { JunctionControllerService } from '../../services/junction-controller.se
         MatIcon,
         MatMiniFabButton
     ],
-    styleUrls: [
-        '../shared/force-styles.scss'
-    ],
-    host: { class: 'flex-column-centered' }
+    styleUrls: ['./pedestrian-request.component.css'],
+    host: { class: 'flex-column-centered' },
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PedestrianRequestComponent {
 
