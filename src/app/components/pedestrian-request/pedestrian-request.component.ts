@@ -12,7 +12,7 @@ import { JunctionControllerService } from '../../services/junction-controller.se
         MatMiniFabButton,
         AsyncPipe
     ],
-    styleUrls: ['./pedestrian-request.component.css'],
+    styleUrl: 'pedestrian-request.component.scss',
     host: { class: 'flex-column-centered' },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
