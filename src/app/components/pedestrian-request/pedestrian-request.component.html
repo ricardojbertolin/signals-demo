@@ -1,6 +1,6 @@
 <button
     mat-mini-fab
-    [class.active]="junctionControllerService.pedestrianRequest$ | async"
+    [class.active]="junctionControllerService.pedestrianRequest$()"
     (click)="requestPedestrianCycle()">
   <mat-icon fontIcon="directions_run"/>
 </button>

@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatMiniFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -9,10 +8,9 @@ import { JunctionControllerService } from '../../services/junction-controller.se
     templateUrl: './pedestrian-request.component.html',
     imports: [
         MatIcon,
-        MatMiniFabButton,
-        AsyncPipe
+        MatMiniFabButton
     ],
-    styleUrls: ['./pedestrian-request.component.css'],
+    styleUrl: 'pedestrian-request.component.scss',
     host: { class: 'flex-column-centered' },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
