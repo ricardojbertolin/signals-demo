@@ -10,7 +10,7 @@ import { JunctionControllerService } from '../../services/junction-controller.se
         MatIcon,
         MatMiniFabButton
     ],
-    styleUrls: ['./pedestrian-request.component.css'],
+    styleUrls: ['pedestrian-request.component.scss'],
     host: { class: 'flex-column-centered' },
     changeDetection: ChangeDetectionStrategy.OnPush
 })
