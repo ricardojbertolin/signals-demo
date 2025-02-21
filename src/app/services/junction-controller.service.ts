@@ -8,7 +8,9 @@ export class JunctionControllerService {
     readonly pedestrianRequest$ = new Subject<boolean>();
     readonly lightColorForced$ = new Subject<LightColor | null>();
     readonly lightColorCycle$ = timer(0, LIGHT_TIME)
-        .pipe(map(num => Object.values(LightColor).at(num % CYCLE_NUM) as LightColor));
+        .pipe(
+            map(num => Object.values(LightColor).at(num % CYCLE_NUM) as LightColor)
+        );
 
     requestPedestrianCycle() {
         this.pedestrianRequest$.next(true);

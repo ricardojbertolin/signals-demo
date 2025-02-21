@@ -2,14 +2,14 @@
     padding: 20px;
     border: 1px solid black;
     display: flex;
-    width: 900px;
+    width: 800px;
     flex-direction: column;
     border-radius: 15px;
     box-shadow: var(--mat-sys-level5);
 
     .area-wrapper {
         display: grid;
-        grid-template-columns: 70% 30%;
+        grid-template-columns: 50% 50%;
         width: 100%;
     }
 
@@ -22,6 +22,8 @@
 
     .notification-area {
         margin: 40px 0 20px 0;
+        align-self: center;
+        text-align: center;
 
         @keyframes blink {
             0% {
@@ -39,10 +41,9 @@
 
         &--text {
             margin: 0;
-            height: 20px;
-            text-align: center;
 
             &-animated {
+                height: 20px;
                 animation: blink 1s infinite;
             }
         }
