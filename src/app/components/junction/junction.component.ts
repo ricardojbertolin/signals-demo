@@ -1,6 +1,6 @@
-import { Component, inject, Input } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest, filter, finalize, Subscription, takeWhile } from 'rxjs';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { lastValueFrom, Subscription, takeWhile } from 'rxjs';
 import { CYCLE_NUM, LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
 import { ForceSelectorComponent } from '../force-selector/force-selector.component';
@@ -21,113 +21,76 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
 })
 export class JunctionComponent {
 
-    @Input() set lightColorCycle(colorCycle: LightColor | null) {
-        this.lightColorCycleInput$.next(colorCycle);
-    }
-
-    @Input() set pedestrianRequest(request: boolean | null) {
-        this.pedestrianRequestInput$.next(request);
-    }
-
-    @Input() set lightColorForced(color: LightColor | null) {
-        this.lightColorForcedInput$.next(color);
-    }
+    lightColorCycle = input<LightColor | null>();
+    pedestrianRequest = input<boolean | null>();
+    lightColorForced = input<LightColor | null>();
 
     // template bound vars
-    requestsText = '';
-    statusText = '';
-    trafficLightColor: LightColor = LightColor.Red;
-    pedestrianLightColor: LightColor = LightColor.Red;
-    // subjects for @inputs
-    readonly lightColorCycleInput$ = new BehaviorSubject<LightColor | null>(null);
-    private readonly lightColorForcedInput$ = new BehaviorSubject<LightColor | null>(null);
-    private readonly pedestrianRequestInput$ = new BehaviorSubject<boolean | null>(null);
-    // subjects for managing state
-    private readonly pedestrianRequestStarted$ = new BehaviorSubject<boolean | null>(null);
-    private readonly lightColorForcedStarted$ = new BehaviorSubject<LightColor | null>(null);
+    requestsText = computed(() => {
+        const pedestrianRequestAccepted = this.pedestrianRequest() && !this.lightColorForced() && !this.pedestrianRequestStarted$();
+        return pedestrianRequestAccepted ? 'Pedestrian cycle requested' : '';
+    });
+    statusText = computed(() => {
+        return this.lightColorForced()
+            ? `Color forced for a cycle is ${ this.lightColorForced() }`
+            : this.pedestrianRequestStarted$()
+                ? 'Attending pedestrian request for 1 cycle'
+                : `Controller light color is ${ this.lightColorCycle() }`;
+
+    });
+
+    pedestrianLightColor = computed(() =>
+        this.pedestrianRequestStarted$() ? LightColor.Green : LightColor.Red
+    );
+
+    trafficLightColor = computed(() => {
+        return this.lightColorForced()
+            ?? (this.pedestrianRequestStarted$()
+                ? LightColor.Red
+                : this.lightColorCycle()!);
+    });
+
+    // signals for managing state
+    private readonly pedestrianRequestStarted$ = signal(false);
     // others
-    private cycleSubscription: Subscription | undefined;
     private readonly junctionControllerService = inject(JunctionControllerService);
+    private lightColorCycle$ = toObservable(this.lightColorCycle);
+    private subscription: Subscription | undefined;
 
     constructor() {
-        this.setSubscriptions();
+        effect(() => this.stopForcedColorStageAfterStarted());
+        effect(() => this.startPedestrianStageWhenRequested());
+        effect(() => this.stopPedestrianStageAfterCycle());
     }
 
-    private setSubscriptions() {
-        this.forceColorSubscription();
-        this.pedestrianRequestSubscription();
-        this.manageDataSubscription();
+    private async stopForcedColorStageAfterStarted() {
+        if (this.lightColorForced()) {
+            this.subscription?.unsubscribe();
+            this.subscription = this.startCycleSubscription()
+                                    .subscribe({
+                                        complete: () => this.junctionControllerService.resetForceLightColor()
+                                    });
+        }
     }
 
-    private forceColorSubscription() {
-        this.lightColorForcedInput$
-            .pipe(
-                filter(Boolean),
-                filter(color => color !== this.lightColorForcedStarted$.getValue()),
-                takeUntilDestroyed(),
-            )
-            .subscribe(
-                color => {
-                    this.lightColorForcedStarted$.next(color);
-                    // start cycle and clean on finish
-                    this.startCycleSubscription(() => {
-                        this.lightColorForcedStarted$.next(null);
-                        this.junctionControllerService.resetForceLightColor();
-                    });
-
-                });
+    private startPedestrianStageWhenRequested() {
+        if (!this.lightColorForced() && !this.pedestrianRequestStarted$() && this.pedestrianRequest() && this.lightColorCycle() === LightColor.Red) {
+            this.pedestrianRequestStarted$.set(true);
+        }
     }
 
-    private pedestrianRequestSubscription() {
-        combineLatest([this.pedestrianRequestInput$, this.lightColorCycleInput$])
-            .pipe(
-                filter(([pedestrianRequest, lightColorCycle]) => !this.lightColorForcedStarted$.getValue() && !!pedestrianRequest && lightColorCycle === LightColor.Red),
-                takeUntilDestroyed())
-            .subscribe(
-                () => {
-                    this.pedestrianRequestStarted$.next(true);
-                    // start cycle and clean on finish
-                    this.startCycleSubscription(() => {
-                        this.pedestrianRequestStarted$.next(false);
-                        this.junctionControllerService.resetRequestPedestrianCycle();
-                    });
-                }
-            );
+    private async stopPedestrianStageAfterCycle() {
+        if (this.pedestrianRequestStarted$()) {
+            await lastValueFrom(this.startCycleSubscription());
+            this.junctionControllerService.resetRequestPedestrianCycle();
+            this.pedestrianRequestStarted$.set(false);
+        }
     }
 
-    private manageDataSubscription() {
-        combineLatest([this.lightColorForcedStarted$, this.lightColorCycleInput$, this.pedestrianRequestStarted$, this.pedestrianRequestInput$])
-            .pipe(takeUntilDestroyed())
-            .subscribe(
-                ([lightColorBeingForced, lightColorCycle, pedestrianRequestStarted, pedestrianRequest]) => {
-                    if (lightColorBeingForced) {
-                        this.trafficLightColor = lightColorBeingForced;
-                        this.pedestrianLightColor = LightColor.Red;
-                        this.statusText = `Color forced for a cycle is ${ lightColorBeingForced }`;
-                        this.requestsText = '';
-                    } else if (pedestrianRequestStarted) {
-                        this.trafficLightColor = LightColor.Red;
-                        this.pedestrianLightColor = LightColor.Green;
-                        this.statusText = 'Attending pedestrian request for 1 cycle';
-                        this.requestsText = '';
-                    } else {
-                        this.trafficLightColor = lightColorCycle!;
-                        this.pedestrianLightColor = LightColor.Red;
-                        this.statusText = `Controller light color is ${ lightColorCycle }`;
-                        this.requestsText = pedestrianRequest ? 'Pedestrian cycle requested' : '';
-                    }
-                }
-            );
-    }
+    private startCycleSubscription() {
+        return this.lightColorCycle$
+                   .pipe(takeWhile((_, time) => time < CYCLE_NUM));
 
-    private startCycleSubscription(actionOnFinalize: () => void) {
-        this.cycleSubscription?.unsubscribe();
-        this.cycleSubscription = this.lightColorCycleInput$
-                                     .pipe(
-                                         takeWhile((_, time) => time < CYCLE_NUM),
-                                         finalize(() => actionOnFinalize())
-                                     )
-                                     .subscribe();
     }
 
 }

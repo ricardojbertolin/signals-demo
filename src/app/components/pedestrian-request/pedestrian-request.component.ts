@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatMiniFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -9,8 +8,7 @@ import { JunctionControllerService } from '../../services/junction-controller.se
     templateUrl: './pedestrian-request.component.html',
     imports: [
         MatIcon,
-        MatMiniFabButton,
-        AsyncPipe
+        MatMiniFabButton
     ],
     styleUrls: [
         '../shared/force-styles.scss'

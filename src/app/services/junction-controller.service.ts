@@ -1,31 +1,31 @@
-import { Injectable } from '@angular/core';
-import { map, Subject, timer } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { map, timer } from 'rxjs';
 import { CYCLE_NUM, LIGHT_TIME, LightColor } from '../app.definitions';
 
 @Injectable()
 export class JunctionControllerService {
 
-    readonly pedestrianRequest$ = new Subject<boolean>();
-    readonly lightColorForced$ = new Subject<LightColor | null>();
+    readonly pedestrianRequest$ = signal(false);
+    readonly lightColorForced$ = signal<LightColor | null>(null);
     readonly lightColorCycle$ = timer(0, LIGHT_TIME)
         .pipe(
             map(num => Object.values(LightColor).at(num % CYCLE_NUM) as LightColor)
         );
 
     requestPedestrianCycle() {
-        this.pedestrianRequest$.next(true);
+        this.pedestrianRequest$.set(true);
     }
 
     forceLightColor(lightColor: LightColor) {
-        this.lightColorForced$.next(lightColor);
+        this.lightColorForced$.set(lightColor);
     }
 
     resetRequestPedestrianCycle() {
-        this.pedestrianRequest$.next(false);
+        this.pedestrianRequest$.set(false);
     }
 
     resetForceLightColor() {
-        this.lightColorForced$.next(null);
+        this.lightColorForced$.set(null);
     }
 
 }

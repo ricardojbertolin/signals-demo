@@ -4,21 +4,21 @@
     <h2 class="center-text">LIGHTS SECTION</h2>
     <div class="flex-row light-area-wrapper">
       <app-traffic-light
-          [lightColor]="trafficLightColor"/>
+          [lightColor]="trafficLightColor()"/>
       <app-pedestrian-light
-          [lightColor]="pedestrianLightColor"/>
+          [lightColor]="pedestrianLightColor()"/>
     </div>
     <div class="flex-column-centered notification-area">
-      <p class="notification-area--text notification-area--text-animated">{{ requestsText }}</p>
+      <p class="notification-area--text notification-area--text-animated">{{ requestsText() }}</p>
       <p class="notification-area--text">
         <b>Light status</b>
         <br/>
-        {{ statusText }}
+        {{ statusText() }}
       </p>
       <p class="notification-area--text">
         <b>Controller light</b>
         <br/>
-        {{ lightColorCycleInput$.getValue() }}
+        {{ lightColorCycle() }}
       </p>
     </div>
   </div>

@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatMiniFabButton } from '@angular/material/button';
@@ -11,8 +10,7 @@ import { JunctionControllerService } from '../../services/junction-controller.se
     imports: [
         ReactiveFormsModule,
         MatIcon,
-        MatMiniFabButton,
-        AsyncPipe
+        MatMiniFabButton
     ],
     templateUrl: './force-selector.component.html',
     styleUrls: [

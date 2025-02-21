@@ -3,21 +3,21 @@
   <button
       class="red"
       mat-mini-fab
-      [class.active]="(junctionControllerService.lightColorForced$ | async) === lightColors.Red"
+      [class.active]="junctionControllerService.lightColorForced$() === lightColors.Red"
       (click)="forceLightColor(lightColors.Red)">
     <mat-icon fontIcon="traffic"/>
   </button>
   <button
       class="yellow"
       mat-mini-fab
-      [class.active]="(junctionControllerService.lightColorForced$ | async) === lightColors.Yellow"
+      [class.active]="junctionControllerService.lightColorForced$() === lightColors.Yellow"
       (click)="forceLightColor(lightColors.Yellow)">
     <mat-icon fontIcon="traffic"/>
   </button>
   <button
       class="green"
       mat-mini-fab
-      [class.active]="(junctionControllerService.lightColorForced$ | async) === lightColors.Green"
+      [class.active]="junctionControllerService.lightColorForced$() === lightColors.Green"
       (click)="forceLightColor(lightColors.Green)">
     <mat-icon fontIcon="traffic"/>
   </button>
