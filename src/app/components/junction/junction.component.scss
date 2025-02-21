@@ -2,14 +2,12 @@
     padding: 20px;
     border: 1px solid black;
     display: flex;
-    width: 800px;
+    width: 400px;
     flex-direction: column;
     border-radius: 15px;
     box-shadow: var(--mat-sys-level5);
 
     .area-wrapper {
-        display: grid;
-        grid-template-columns: 50% 50%;
         width: 100%;
     }
 
@@ -18,12 +16,26 @@
             gap: 30px;
             justify-content: center;
         }
+
+        &-pedestrian-wrapper {
+            align-items: flex-end;
+        }
     }
 
     .notification-area {
-        margin: 40px 0 20px 0;
-        align-self: center;
-        text-align: center;
+        display: grid;
+        grid-template-columns:200px 180px;
+        margin-top: 40px;
+        column-gap: 15px;
+        row-gap: 5px;
+
+        p {
+            margin: 0;
+
+            &.right-aligned {
+                text-align: right;
+            }
+        }
 
         @keyframes blink {
             0% {
@@ -39,13 +51,11 @@
             }
         }
 
-        &--text {
-            margin: 0;
-
-            &-animated {
-                height: 20px;
-                animation: blink 1s infinite;
-            }
+        &--text-animated {
+            height: 20px;
+            animation: blink 1s infinite;
+            text-align: center;
+            grid-column: 1 / span 2;
         }
     }
 }

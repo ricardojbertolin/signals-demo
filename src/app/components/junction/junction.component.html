@@ -1,32 +1,26 @@
 <div class="area-wrapper">
 
   <div class="flex-column-centered light-area">
-    <h2 class="center-text">LIGHTS SECTION</h2>
     <div class="flex-row light-area-wrapper">
       <app-traffic-light
-          [lightColor]="trafficLightColor"/>
-      <app-pedestrian-light
-          [lightColor]="pedestrianLightColor"/>
+          [lightColor]="trafficLightColor()"/>
+      <div class="flex-row light-area-pedestrian-wrapper">
+        <app-pedestrian-light
+            [lightColor]="pedestrianLightColor()"/>
+        <app-pedestrian-request/>
+      </div>
     </div>
-    <div class="flex-column-centered notification-area">
-      <p class="notification-area--text notification-area--text-animated">{{ requestsText }}</p>
-      <p class="notification-area--text">
-        <b>Light status</b>
-        <br/>
-        {{ statusText }}
+    <div class="notification-area">
+      <p class="right-aligned">
+        <b>Light current status:</b>
       </p>
-      <p class="notification-area--text">
-        <b>Controller light</b>
-        <br/>
-        {{ lightColorCycleInput$.getValue() }}
+      <p>{{ statusText() }}</p>
+      <p class="right-aligned">
+        <b>Controller light received:</b>
       </p>
+      <p>{{ lightColorCycle() | titlecase }}</p>
+      <p class="notification-area--text-animated">{{ requestsText() }}</p>
     </div>
-  </div>
-
-  <div class="flex-column-centered operational-area">
-    <h2 class="center-text">OPERATIONAL SECTION</h2>
-    <app-pedestrian-request/>
-    <app-force-selector/>
   </div>
 
 </div>
