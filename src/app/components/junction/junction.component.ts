@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
-import { LightColor } from '../../app.definitions';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, combineLatest, filter, finalize, Subscription, takeWhile } from 'rxjs';
+import { CYCLE_NUM, LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
 import { NotificationsAreaComponent } from '../notifications-area/notifications-area.component';
 import { PedestrianLightComponent } from '../pedestrian-light/pedestrian-light.component';
@@ -21,49 +23,83 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
 export class JunctionComponent {
 
     @Input() set lightColorCycle(colorCycle: LightColor | null) {
-        this._lightColorCycle = colorCycle;
-        if (this.pedestrianRequested && colorCycle === LightColor.Red) {
-            if (!this.pedestrianRequestStarted) {
-                this.pedestrianLightColor = LightColor.Green;
-                this.pedestrianRequestStarted = true;
-                this.requestsText = '';
-                this.statusText = 'Pedestrian light is green';
-            } else {
-                this.pedestrianLightColor = LightColor.Red;
-                this.pedestrianRequestStarted = false;
-                this.pedestrianRequested = false;
-                this.statusText = `Controller light`;
-                this.junctionControllerService.resetRequestPedestrianCycle();
-            }
-            this.trafficLightColor = colorCycle!;
-
-        } else if (!this.pedestrianRequestStarted) {
-            this.trafficLightColor = colorCycle!;
-            this.statusText = `Controller light`;
-        }
-
-    }
-
-    get lightColorCycle() {
-        return this._lightColorCycle;
+        this.lightColorCycleInput$.next(colorCycle);
     }
 
     @Input() set pedestrianRequest(request: boolean | null) {
-        if (request && !this.pedestrianRequestStarted) {
-            this.pedestrianRequested = true;
-            this.requestsText = 'Pedestrian green light requested';
-        } else if (request) {
-            this.junctionControllerService.resetRequestPedestrianCycle();
-        }
+        this.pedestrianRequestInput$.next(request);
     }
 
+    // template bound vars
     requestsText = '';
     statusText = '';
     trafficLightColor: LightColor = LightColor.Red;
     pedestrianLightColor: LightColor = LightColor.Red;
+    // subjects for @inputs
+    readonly lightColorCycleInput$ = new BehaviorSubject<LightColor | null>(null);
+    private readonly pedestrianRequestInput$ = new BehaviorSubject<boolean | null>(null);
+    // subjects for managing state
+    private readonly pedestrianRequestStarted$ = new BehaviorSubject<boolean | null>(null);
+    // others
+    private cycleSubscription: Subscription | undefined;
     private readonly junctionControllerService = inject(JunctionControllerService);
-    private pedestrianRequested = false;
-    private pedestrianRequestStarted = false;
-    private _lightColorCycle: LightColor | null = null;
+    private readonly cd = inject(ChangeDetectorRef);
+
+    constructor() {
+        this.setSubscriptions();
+    }
+
+    private setSubscriptions() {
+        this.pedestrianRequestSubscription();
+        this.manageDataSubscription();
+    }
+
+    private pedestrianRequestSubscription() {
+        combineLatest([this.pedestrianRequestInput$, this.lightColorCycleInput$])
+            .pipe(
+                filter(([pedestrianRequest, lightColorCycle]) => !!pedestrianRequest && lightColorCycle === LightColor.Red),
+                takeUntilDestroyed())
+            .subscribe(
+                () => {
+                    this.pedestrianRequestStarted$.next(true);
+                    // start cycle and clean on finish
+                    this.startCycleSubscription(() => {
+                        this.pedestrianRequestStarted$.next(false);
+                        this.junctionControllerService.resetRequestPedestrianCycle();
+                    });
+                }
+            );
+    }
+
+    private manageDataSubscription() {
+        combineLatest([this.lightColorCycleInput$, this.pedestrianRequestStarted$, this.pedestrianRequestInput$])
+            .pipe(takeUntilDestroyed())
+            .subscribe(
+                ([lightColorCycle, pedestrianRequestStarted, pedestrianRequest]) => {
+                    if (pedestrianRequestStarted) {
+                        this.trafficLightColor = LightColor.Red;
+                        this.pedestrianLightColor = LightColor.Green;
+                        this.statusText = 'Pedestrian light is green';
+                        this.requestsText = '';
+                    } else {
+                        this.trafficLightColor = lightColorCycle!;
+                        this.pedestrianLightColor = LightColor.Red;
+                        this.statusText = `Controller light`;
+                        this.requestsText = pedestrianRequest ? 'Pedestrian green light requested' : '';
+                    }
+                    this.cd.markForCheck();
+                }
+            );
+    }
+
+    private startCycleSubscription(actionOnFinalize: () => void) {
+        this.cycleSubscription?.unsubscribe();
+        this.cycleSubscription = this.lightColorCycleInput$
+                                     .pipe(
+                                         takeWhile((_, time) => time < CYCLE_NUM),
+                                         finalize(() => actionOnFinalize())
+                                     )
+                                     .subscribe();
+    }
 
 }
