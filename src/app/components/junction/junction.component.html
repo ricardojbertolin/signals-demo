@@ -1,28 +1,21 @@
 <div class="area-wrapper">
-
+  <!-- light area -->
   <div class="flex-column-centered light-area">
     <div class="flex-row light-area-wrapper">
+      <!-- traffic light -->
       <app-traffic-light
           [lightColor]="trafficLightColor"/>
       <div class="flex-row light-area-pedestrian-wrapper">
+        <!-- pedestrian light -->
         <app-pedestrian-light
             [lightColor]="pedestrianLightColor"/>
         <app-pedestrian-request/>
       </div>
     </div>
-    <div class="notification-area">
-      <p class="right-aligned">
-        <b>Light current status:</b>
-      </p>
-      <p>{{ statusText }}</p>
-      <p class="right-aligned">
-        <b>Controller light received:</b>
-      </p>
-      <p>{{ lightColorCycle | titlecase }}</p>
-      <p class="notification-area--text-animated">{{ requestsText }}</p>
-    </div>
-  </div>
+    <!-- notification area light -->
+    <app-notifications-area
+        [statusText]="statusText"
+        [lightColorCycle]="lightColorCycle"
+        [requestsText]="requestsText"/>
 
 </div>
-
-
