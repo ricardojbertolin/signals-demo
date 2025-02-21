@@ -1,9 +1,9 @@
-import { TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, filter, finalize, Subscription, takeWhile } from 'rxjs';
 import { CYCLE_NUM, LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
+import { NotificationsAreaComponent } from '../notifications-area/notifications-area.component';
 import { PedestrianLightComponent } from '../pedestrian-light/pedestrian-light.component';
 import { PedestrianRequestComponent } from '../pedestrian-request/pedestrian-request.component';
 import { TrafficLightComponent } from '../traffic-light/traffic-light.component';
@@ -14,7 +14,7 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
         PedestrianRequestComponent,
         PedestrianLightComponent,
         TrafficLightComponent,
-        TitleCasePipe
+        NotificationsAreaComponent
     ],
     templateUrl: './junction.component.html',
     styleUrl: './junction.component.scss',
