@@ -1,7 +1,7 @@
-import { Component, inject, Input } from '@angular/core';
-import { CYCLE_NUM, LightColor } from '../../app.definitions';
+import { TitleCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
+import { LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
-import { ForceSelectorComponent } from '../force-selector/force-selector.component';
 import { PedestrianLightComponent } from '../pedestrian-light/pedestrian-light.component';
 import { PedestrianRequestComponent } from '../pedestrian-request/pedestrian-request.component';
 import { TrafficLightComponent } from '../traffic-light/traffic-light.component';
@@ -10,66 +10,49 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
     selector: 'app-junction',
     imports: [
         PedestrianRequestComponent,
-        ForceSelectorComponent,
         PedestrianLightComponent,
-        TrafficLightComponent
+        TrafficLightComponent,
+        TitleCasePipe
     ],
     templateUrl: './junction.component.html',
-    styleUrl: './junction.component.scss'
+    styleUrl: './junction.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JunctionComponent {
 
     @Input() set lightColorCycle(colorCycle: LightColor | null) {
-        if (this.forcedColor) {
-            if (this.forcedColorCycleTimes <= CYCLE_NUM) {
-                this.forcedColorCycleTimes++;
-            } else {
-                this.forcedColor = undefined;
-                this.trafficLightColor = colorCycle!;
-                this.statusText = `Controller light color is ${ colorCycle }`;
-                this.forcedColorCycleTimes = 0;
-                this.junctionControllerService.resetForceLightColor();
-            }
-
-        } else if (this.pedestrianRequested && colorCycle === LightColor.Red) {
+        this._lightColorCycle = colorCycle;
+        if (this.pedestrianRequested && colorCycle === LightColor.Red) {
             if (!this.pedestrianRequestStarted) {
                 this.pedestrianLightColor = LightColor.Green;
                 this.pedestrianRequestStarted = true;
                 this.requestsText = '';
-                this.statusText = 'Attending pedestrian request for 1 cycle';
+                this.statusText = 'Pedestrian light is green';
             } else {
                 this.pedestrianLightColor = LightColor.Red;
                 this.pedestrianRequestStarted = false;
                 this.pedestrianRequested = false;
-                this.statusText = `Controller light color is ${ colorCycle }`;
+                this.statusText = `Controller light`;
                 this.junctionControllerService.resetRequestPedestrianCycle();
             }
             this.trafficLightColor = colorCycle!;
 
         } else if (!this.pedestrianRequestStarted) {
             this.trafficLightColor = colorCycle!;
-            this.statusText = `Controller light color is ${ colorCycle }`;
+            this.statusText = `Controller light`;
         }
 
+    }
+
+    get lightColorCycle() {
+        return this._lightColorCycle;
     }
 
     @Input() set pedestrianRequest(request: boolean | null) {
-        if (request && !this.pedestrianRequestStarted && !this.forcedColor) {
+        if (request && !this.pedestrianRequestStarted) {
             this.pedestrianRequested = true;
-            this.requestsText = 'Pedestrian cycle requested';
-        } else if (request && this.forcedColor) {
-            this.junctionControllerService.resetRequestPedestrianCycle();
-        }
-    }
-
-    @Input() set lightColorForced(color: LightColor | null) {
-        if (color && this.forcedColor !== color) {
-            this.forcedColor = color;
-            this.pedestrianLightColor = LightColor.Red;
-            this.trafficLightColor = color;
-            this.statusText = `Color forced for a cycle is ${ color }`;
-            this.requestsText = '';
-            this.forcedColorCycleTimes = 0;
+            this.requestsText = 'Pedestrian green light requested';
+        } else if (request) {
             this.junctionControllerService.resetRequestPedestrianCycle();
         }
     }
@@ -81,7 +64,6 @@ export class JunctionComponent {
     private readonly junctionControllerService = inject(JunctionControllerService);
     private pedestrianRequested = false;
     private pedestrianRequestStarted = false;
-    private forcedColor: LightColor | undefined;
-    private forcedColorCycleTimes = 0;
+    private _lightColorCycle: LightColor | null = null;
 
 }
