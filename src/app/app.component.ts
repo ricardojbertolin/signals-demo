@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { JunctionComponent } from './components/junction/junction.component';
 import { JunctionControllerService } from './services/junction-controller.service';
 
@@ -11,7 +11,8 @@ import { JunctionControllerService } from './services/junction-controller.servic
         AsyncPipe
     ],
     providers: [JunctionControllerService],
-    styleUrl: './app.component.scss'
+    styleUrl: './app.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
     readonly junctionControllerService = inject(JunctionControllerService);

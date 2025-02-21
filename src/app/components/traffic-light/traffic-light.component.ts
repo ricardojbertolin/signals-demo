@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { LightColor } from '../../app.definitions';
 
 @Component({
@@ -6,7 +6,8 @@ import { LightColor } from '../../app.definitions';
     imports: [],
     templateUrl: './traffic-light.component.html',
     styleUrl: '../shared/light-styles.scss',
-    host: { class: 'flex-column-centered' }
+    host: { class: 'flex-column-centered' },
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrafficLightComponent {
     lightColor = input(LightColor.Red);

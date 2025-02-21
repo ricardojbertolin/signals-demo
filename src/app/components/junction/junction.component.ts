@@ -1,9 +1,9 @@
-import { Component, inject, Input } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, combineLatest, filter, finalize, Subscription, takeWhile } from 'rxjs';
 import { CYCLE_NUM, LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
-import { ForceSelectorComponent } from '../force-selector/force-selector.component';
 import { PedestrianLightComponent } from '../pedestrian-light/pedestrian-light.component';
 import { PedestrianRequestComponent } from '../pedestrian-request/pedestrian-request.component';
 import { TrafficLightComponent } from '../traffic-light/traffic-light.component';
@@ -12,12 +12,13 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
     selector: 'app-junction',
     imports: [
         PedestrianRequestComponent,
-        ForceSelectorComponent,
         PedestrianLightComponent,
-        TrafficLightComponent
+        TrafficLightComponent,
+        TitleCasePipe
     ],
     templateUrl: './junction.component.html',
-    styleUrl: './junction.component.scss'
+    styleUrl: './junction.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JunctionComponent {
 
@@ -29,10 +30,6 @@ export class JunctionComponent {
         this.pedestrianRequestInput$.next(request);
     }
 
-    @Input() set lightColorForced(color: LightColor | null) {
-        this.lightColorForcedInput$.next(color);
-    }
-
     // template bound vars
     requestsText = '';
     statusText = '';
@@ -40,48 +37,27 @@ export class JunctionComponent {
     pedestrianLightColor: LightColor = LightColor.Red;
     // subjects for @inputs
     readonly lightColorCycleInput$ = new BehaviorSubject<LightColor | null>(null);
-    private readonly lightColorForcedInput$ = new BehaviorSubject<LightColor | null>(null);
     private readonly pedestrianRequestInput$ = new BehaviorSubject<boolean | null>(null);
     // subjects for managing state
     private readonly pedestrianRequestStarted$ = new BehaviorSubject<boolean | null>(null);
-    private readonly lightColorForcedStarted$ = new BehaviorSubject<LightColor | null>(null);
     // others
     private cycleSubscription: Subscription | undefined;
     private readonly junctionControllerService = inject(JunctionControllerService);
+    private readonly cd = inject(ChangeDetectorRef);
 
     constructor() {
         this.setSubscriptions();
     }
 
     private setSubscriptions() {
-        this.forceColorSubscription();
         this.pedestrianRequestSubscription();
         this.manageDataSubscription();
-    }
-
-    private forceColorSubscription() {
-        this.lightColorForcedInput$
-            .pipe(
-                filter(Boolean),
-                filter(color => color !== this.lightColorForcedStarted$.getValue()),
-                takeUntilDestroyed(),
-            )
-            .subscribe(
-                color => {
-                    this.lightColorForcedStarted$.next(color);
-                    // start cycle and clean on finish
-                    this.startCycleSubscription(() => {
-                        this.lightColorForcedStarted$.next(null);
-                        this.junctionControllerService.resetForceLightColor();
-                    });
-
-                });
     }
 
     private pedestrianRequestSubscription() {
         combineLatest([this.pedestrianRequestInput$, this.lightColorCycleInput$])
             .pipe(
-                filter(([pedestrianRequest, lightColorCycle]) => !this.lightColorForcedStarted$.getValue() && !!pedestrianRequest && lightColorCycle === LightColor.Red),
+                filter(([pedestrianRequest, lightColorCycle]) => !!pedestrianRequest && lightColorCycle === LightColor.Red),
                 takeUntilDestroyed())
             .subscribe(
                 () => {
@@ -96,26 +72,22 @@ export class JunctionComponent {
     }
 
     private manageDataSubscription() {
-        combineLatest([this.lightColorForcedStarted$, this.lightColorCycleInput$, this.pedestrianRequestStarted$, this.pedestrianRequestInput$])
+        combineLatest([this.lightColorCycleInput$, this.pedestrianRequestStarted$, this.pedestrianRequestInput$])
             .pipe(takeUntilDestroyed())
             .subscribe(
-                ([lightColorBeingForced, lightColorCycle, pedestrianRequestStarted, pedestrianRequest]) => {
-                    if (lightColorBeingForced) {
-                        this.trafficLightColor = lightColorBeingForced;
-                        this.pedestrianLightColor = LightColor.Red;
-                        this.statusText = `Color forced for a cycle is ${ lightColorBeingForced }`;
-                        this.requestsText = '';
-                    } else if (pedestrianRequestStarted) {
+                ([lightColorCycle, pedestrianRequestStarted, pedestrianRequest]) => {
+                    if (pedestrianRequestStarted) {
                         this.trafficLightColor = LightColor.Red;
                         this.pedestrianLightColor = LightColor.Green;
-                        this.statusText = 'Attending pedestrian request for 1 cycle';
+                        this.statusText = 'Pedestrian light is green';
                         this.requestsText = '';
                     } else {
                         this.trafficLightColor = lightColorCycle!;
                         this.pedestrianLightColor = LightColor.Red;
-                        this.statusText = `Controller light color is ${ lightColorCycle }`;
-                        this.requestsText = pedestrianRequest ? 'Pedestrian cycle requested' : '';
+                        this.statusText = `Controller light`;
+                        this.requestsText = pedestrianRequest ? 'Pedestrian green light requested' : '';
                     }
+                    this.cd.markForCheck();
                 }
             );
     }
