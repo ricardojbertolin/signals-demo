@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, combineLatest, filter, finalize, Subscription, takeWhile } from 'rxjs';
+import { BehaviorSubject, combineLatest, filter, lastValueFrom, Subscription, takeWhile } from 'rxjs';
 import { CYCLE_NUM, LightColor } from '../../app.definitions';
 import { JunctionControllerService } from '../../services/junction-controller.service';
 import { NotificationsAreaComponent } from '../notifications-area/notifications-area.component';
@@ -60,13 +60,12 @@ export class JunctionComponent {
                 filter(([pedestrianRequest, lightColorCycle]) => !!pedestrianRequest && lightColorCycle === LightColor.Red),
                 takeUntilDestroyed())
             .subscribe(
-                () => {
+                async () => {
                     this.pedestrianRequestStarted$.next(true);
                     // start cycle and clean on finish
-                    this.startCycleSubscription(() => {
-                        this.pedestrianRequestStarted$.next(false);
-                        this.junctionControllerService.resetRequestPedestrianCycle();
-                    });
+                    await lastValueFrom(this.startCycleSubscription());
+                    this.pedestrianRequestStarted$.next(false);
+                    this.junctionControllerService.resetRequestPedestrianCycle();
                 }
             );
     }
@@ -92,14 +91,9 @@ export class JunctionComponent {
             );
     }
 
-    private startCycleSubscription(actionOnFinalize: () => void) {
-        this.cycleSubscription?.unsubscribe();
-        this.cycleSubscription = this.lightColorCycleInput$
-                                     .pipe(
-                                         takeWhile((_, time) => time < CYCLE_NUM),
-                                         finalize(() => actionOnFinalize())
-                                     )
-                                     .subscribe();
+    private startCycleSubscription() {
+        return this.lightColorCycleInput$
+                   .pipe(takeWhile((_, time) => time < CYCLE_NUM));
     }
 
 }
