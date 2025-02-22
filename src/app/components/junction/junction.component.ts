@@ -57,13 +57,15 @@ export class JunctionComponent {
         }
     }
 
+    // template bound vars
     requestsText = '';
     statusText = '';
     trafficLightColor: LightColor = LightColor.Red;
     pedestrianLightColor: LightColor = LightColor.Red;
-    private readonly junctionControllerService = inject(JunctionControllerService);
+    // vars for managing state
     private pedestrianRequested = false;
     private pedestrianRequestStarted = false;
+    // others
     private _lightColorCycle: LightColor | null = null;
-
+    private readonly junctionControllerService = inject(JunctionControllerService);
 }
