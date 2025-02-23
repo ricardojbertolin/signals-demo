@@ -23,18 +23,18 @@ import { getPedestrianLightColor, getRequestsText, getStatusText, getTrafficLigh
 })
 export class JunctionComponent {
     // inputs
-    lightColorCycle = input<LightColor | null>();
-    pedestrianRequest = input<boolean | null>();
+    lightColorCycleInput$ = input<LightColor | null>();
+    pedestrianRequestInput$ = input<boolean | null>();
     // template bound vars
-    requestsText = computed(() => getRequestsText(this.pedestrianRequest()!, this.pedestrianRequestStarted$()));
+    requestsText = computed(() => getRequestsText(this.pedestrianRequestInput$()!, this.pedestrianRequestStarted$()));
     statusText = computed(() => getStatusText(this.pedestrianRequestStarted$()));
     pedestrianLightColor = computed(() => getPedestrianLightColor(this.pedestrianRequestStarted$()));
-    trafficLightColor = computed(() => getTrafficLightColor(this.pedestrianRequestStarted$(), this.lightColorCycle()!));
+    trafficLightColor = computed(() => getTrafficLightColor(this.pedestrianRequestStarted$(), this.lightColorCycleInput$()!));
     // signals for managing state
     private readonly pedestrianRequestStarted$ = signal(false);
     // others
     private readonly junctionControllerService = inject(JunctionControllerService);
-    private lightColorCycle$ = toObservable(this.lightColorCycle);
+    private lightColorCycle$ = toObservable(this.lightColorCycleInput$);
 
     constructor() {
         effect(() => this.startPedestrianStageWhenRequested());
@@ -42,7 +42,7 @@ export class JunctionComponent {
     }
 
     private startPedestrianStageWhenRequested() {
-        if (pedestrianStageShouldBeStarted(this.pedestrianRequestStarted$(), this.pedestrianRequest()!, this.lightColorCycle()!)) {
+        if (pedestrianStageShouldBeStarted(this.pedestrianRequestStarted$(), this.pedestrianRequestInput$()!, this.lightColorCycleInput$()!)) {
             this.pedestrianRequestStarted$.set(true);
         }
     }
