@@ -1,4 +1,4 @@
 <app-junction
-    [controllerLightColor]="junctionControllerService.controllerLightColor$ | async"
-    [pedestrianRequest]="junctionControllerService.pedestrianRequest$ | async"
+    [controllerLightColor]="(junctionControllerService.controllerLightColor$ | async)!"
+    [pedestrianRequest]="(junctionControllerService.pedestrianRequest$ | async)!"
 />

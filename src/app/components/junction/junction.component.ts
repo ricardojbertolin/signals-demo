@@ -22,11 +22,11 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
 })
 export class JunctionComponent {
 
-    @Input() set controllerLightColor(controllerLightColor: LightColor | null) {
+    @Input() set controllerLightColor(controllerLightColor: LightColor) {
         this.controllerLightColorInput$.next(controllerLightColor);
     }
 
-    @Input() set pedestrianRequest(request: boolean | null) {
+    @Input() set pedestrianRequest(request: boolean) {
         this.pedestrianRequestInput$.next(request);
     }
 
@@ -36,10 +36,10 @@ export class JunctionComponent {
     trafficLightColor: LightColor = LightColor.Red;
     pedestrianLightColor: LightColor = LightColor.Red;
     // subjects for @inputs
-    readonly controllerLightColorInput$ = new BehaviorSubject<LightColor | null>(null);
-    private readonly pedestrianRequestInput$ = new BehaviorSubject<boolean | null>(null);
+    readonly controllerLightColorInput$ = new BehaviorSubject(LightColor.Red);
+    private readonly pedestrianRequestInput$ = new BehaviorSubject(false);
     // subjects for managing state
-    private readonly pedestrianRequestStarted$ = new BehaviorSubject<boolean | null>(null);
+    private readonly pedestrianRequestStarted$ = new BehaviorSubject(false);
     // others
     private cycleSubscription: Subscription | undefined;
     private readonly junctionControllerService = inject(JunctionControllerService);
@@ -81,7 +81,7 @@ export class JunctionComponent {
                         this.statusText = 'Pedestrian light is green';
                         this.requestsText = '';
                     } else {
-                        this.trafficLightColor = controllerLightColor!;
+                        this.trafficLightColor = controllerLightColor;
                         this.pedestrianLightColor = LightColor.Red;
                         this.statusText = `Controller light`;
                         this.requestsText = pedestrianRequest ? 'Pedestrian green light requested' : '';
