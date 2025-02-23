@@ -20,9 +20,9 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
 })
 export class JunctionComponent {
 
-    @Input() set lightColorCycle(colorCycle: LightColor | null) {
-        this._lightColorCycle = colorCycle;
-        if (this.pedestrianRequested && colorCycle === LightColor.Red) {
+    @Input() set controllerLightColor(controllerLightColor: LightColor) {
+        this._controllerLightColor = controllerLightColor;
+        if (this.pedestrianRequested && controllerLightColor === LightColor.Red) {
             if (!this.pedestrianRequestStarted) {
                 this.pedestrianLightColor = LightColor.Green;
                 this.pedestrianRequestStarted = true;
@@ -35,20 +35,20 @@ export class JunctionComponent {
                 this.statusText = `Controller light`;
                 this.junctionControllerService.resetRequestPedestrianCycle();
             }
-            this.trafficLightColor = colorCycle!;
+            this.trafficLightColor = controllerLightColor;
 
         } else if (!this.pedestrianRequestStarted) {
-            this.trafficLightColor = colorCycle!;
+            this.trafficLightColor = controllerLightColor;
             this.statusText = `Controller light`;
         }
 
     }
 
-    get lightColorCycle() {
-        return this._lightColorCycle;
+    get controllerLightColor() {
+        return this._controllerLightColor;
     }
 
-    @Input() set pedestrianRequest(request: boolean | null) {
+    @Input() set pedestrianRequest(request: boolean) {
         if (request && !this.pedestrianRequestStarted) {
             this.pedestrianRequested = true;
             this.requestsText = 'Pedestrian green light requested';
@@ -66,6 +66,6 @@ export class JunctionComponent {
     private pedestrianRequested = false;
     private pedestrianRequestStarted = false;
     // others
-    private _lightColorCycle: LightColor | null = null;
+    private _controllerLightColor: LightColor = LightColor.Red;
     private readonly junctionControllerService = inject(JunctionControllerService);
 }
