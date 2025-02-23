@@ -13,6 +13,6 @@ import { LightColor } from '../../app.definitions';
 })
 export class NotificationsAreaComponent {
     statusText = input('');
-    lightColorCycle = input<LightColor | null>(null);
+    controllerLightColor = input<LightColor | null>(null);
     requestsText = input('');
 }
