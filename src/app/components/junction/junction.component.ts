@@ -23,18 +23,18 @@ import { getPedestrianLightColor, getRequestsText, getStatusText, getTrafficLigh
 })
 export class JunctionComponent {
     // inputs
-    lightColorCycleInput$ = input<LightColor | null>();
-    pedestrianRequestInput$ = input<boolean | null>();
+    controllerLightColorInput$ = input(LightColor.Red);
+    pedestrianRequestInput$ = input(false);
     // template bound vars
-    requestsText = computed(() => getRequestsText(this.pedestrianRequestInput$()!, this.pedestrianRequestStarted$()));
+    requestsText = computed(() => getRequestsText(this.pedestrianRequestInput$(), this.pedestrianRequestStarted$()));
     statusText = computed(() => getStatusText(this.pedestrianRequestStarted$()));
     pedestrianLightColor = computed(() => getPedestrianLightColor(this.pedestrianRequestStarted$()));
-    trafficLightColor = computed(() => getTrafficLightColor(this.pedestrianRequestStarted$(), this.lightColorCycleInput$()!));
+    trafficLightColor = computed(() => getTrafficLightColor(this.pedestrianRequestStarted$(), this.controllerLightColorInput$()));
     // signals for managing state
     private readonly pedestrianRequestStarted$ = signal(false);
     // others
     private readonly junctionControllerService = inject(JunctionControllerService);
-    private lightColorCycle$ = toObservable(this.lightColorCycleInput$);
+    private controllerLightColor$ = toObservable(this.controllerLightColorInput$);
 
     constructor() {
         effect(() => this.startPedestrianStageWhenRequested());
@@ -42,7 +42,7 @@ export class JunctionComponent {
     }
 
     private startPedestrianStageWhenRequested() {
-        if (pedestrianStageShouldBeStarted(this.pedestrianRequestStarted$(), this.pedestrianRequestInput$()!, this.lightColorCycleInput$()!)) {
+        if (pedestrianStageShouldBeStarted(this.pedestrianRequestStarted$(), this.pedestrianRequestInput$(), this.controllerLightColorInput$())) {
             this.pedestrianRequestStarted$.set(true);
         }
     }
@@ -56,7 +56,7 @@ export class JunctionComponent {
     }
 
     private startCycleSubscription() {
-        return this.lightColorCycle$
+        return this.controllerLightColor$
                    .pipe(takeWhile((_, time) => time < CYCLE_NUM));
 
     }

@@ -6,7 +6,7 @@ import { CYCLE_NUM, LIGHT_TIME, LightColor } from '../app.definitions';
 export class JunctionControllerService {
 
     readonly pedestrianRequest$ = signal(false);
-    readonly lightColorCycle$ = timer(0, LIGHT_TIME)
+    readonly controllerLightColor$ = timer(0, LIGHT_TIME)
         .pipe(
             map(num => Object.values(LightColor).at(num % CYCLE_NUM) as LightColor)
         );

@@ -1,4 +1,4 @@
 <app-junction
-    [lightColorCycleInput$]="junctionControllerService.lightColorCycle$ | async"
+    [controllerLightColorInput$]="(junctionControllerService.controllerLightColor$ | async)!"
     [pedestrianRequestInput$]="junctionControllerService.pedestrianRequest$()"
 />

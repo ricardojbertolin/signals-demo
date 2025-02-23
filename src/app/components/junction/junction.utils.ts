@@ -9,8 +9,8 @@ export const getStatusText = (pedestrianRequestStarted: boolean) =>
 export const getPedestrianLightColor = (pedestrianRequestStarted: boolean) =>
     pedestrianRequestStarted ? LightColor.Green : LightColor.Red;
 
-export const getTrafficLightColor = (pedestrianRequestStarted: boolean, lightColorCycle: LightColor) =>
-    pedestrianRequestStarted ? LightColor.Red : lightColorCycle;
+export const getTrafficLightColor = (pedestrianRequestStarted: boolean, controllerLightColor: LightColor) =>
+    pedestrianRequestStarted ? LightColor.Red : controllerLightColor;
 
-export const pedestrianStageShouldBeStarted = (pedestrianRequestStarted: boolean, pedestrianRequest: boolean, lightColorCycle: LightColor) =>
-    !pedestrianRequestStarted && pedestrianRequest && lightColorCycle === LightColor.Red;
+export const pedestrianStageShouldBeStarted = (pedestrianRequestStarted: boolean, pedestrianRequest: boolean, controllerLightColor: LightColor) =>
+    !pedestrianRequestStarted && pedestrianRequest && controllerLightColor === LightColor.Red;

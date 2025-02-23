@@ -44,7 +44,7 @@ describe('getTrafficLightColor', () => {
         expect(getTrafficLightColor(true, LightColor.Green)).toBe(LightColor.Red);
     });
 
-    it('should return the given lightColorCycle when pedestrianRequestStarted is false', () => {
+    it('should return the given controllerLightColor when pedestrianRequestStarted is false', () => {
         expect(getTrafficLightColor(false, LightColor.Green)).toBe(LightColor.Green);
         expect(getTrafficLightColor(false, LightColor.Yellow)).toBe(LightColor.Yellow);
         expect(getTrafficLightColor(false, LightColor.Red)).toBe(LightColor.Red);
@@ -52,7 +52,7 @@ describe('getTrafficLightColor', () => {
 });
 
 describe('pedestrianStageShouldBeStarted', () => {
-    it('should return true when pedestrianRequestStarted is false, pedestrianRequest is true, and lightColorCycle is Red', () => {
+    it('should return true when pedestrianRequestStarted is false, pedestrianRequest is true, and controllerLightColor is Red', () => {
         expect(pedestrianStageShouldBeStarted(false, true, LightColor.Red)).toBeTrue();
     });
 
@@ -64,7 +64,7 @@ describe('pedestrianStageShouldBeStarted', () => {
         expect(pedestrianStageShouldBeStarted(false, false, LightColor.Red)).toBeFalse();
     });
 
-    it('should return false when lightColorCycle is not Red', () => {
+    it('should return false when controllerLightColor is not Red', () => {
         expect(pedestrianStageShouldBeStarted(false, true, LightColor.Green)).toBeFalse();
         expect(pedestrianStageShouldBeStarted(false, true, LightColor.Yellow)).toBeFalse();
     });
