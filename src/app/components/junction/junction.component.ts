@@ -22,8 +22,8 @@ import { TrafficLightComponent } from '../traffic-light/traffic-light.component'
 })
 export class JunctionComponent {
 
-    @Input() set lightColorCycle(colorCycle: LightColor | null) {
-        this.lightColorCycleInput$.next(colorCycle);
+    @Input() set controllerLightColor(controllerLightColor: LightColor | null) {
+        this.controllerLightColorInput$.next(controllerLightColor);
     }
 
     @Input() set pedestrianRequest(request: boolean | null) {
@@ -36,7 +36,7 @@ export class JunctionComponent {
     trafficLightColor: LightColor = LightColor.Red;
     pedestrianLightColor: LightColor = LightColor.Red;
     // subjects for @inputs
-    readonly lightColorCycleInput$ = new BehaviorSubject<LightColor | null>(null);
+    readonly controllerLightColorInput$ = new BehaviorSubject<LightColor | null>(null);
     private readonly pedestrianRequestInput$ = new BehaviorSubject<boolean | null>(null);
     // subjects for managing state
     private readonly pedestrianRequestStarted$ = new BehaviorSubject<boolean | null>(null);
@@ -55,9 +55,9 @@ export class JunctionComponent {
     }
 
     private pedestrianRequestSubscription() {
-        combineLatest([this.pedestrianRequestInput$, this.lightColorCycleInput$])
+        combineLatest([this.pedestrianRequestInput$, this.controllerLightColorInput$])
             .pipe(
-                filter(([pedestrianRequest, lightColorCycle]) => !!pedestrianRequest && lightColorCycle === LightColor.Red),
+                filter(([pedestrianRequest, controllerLightColor]) => !!pedestrianRequest && controllerLightColor === LightColor.Red),
                 takeUntilDestroyed())
             .subscribe(
                 async () => {
@@ -71,17 +71,17 @@ export class JunctionComponent {
     }
 
     private manageDataSubscription() {
-        combineLatest([this.lightColorCycleInput$, this.pedestrianRequestStarted$, this.pedestrianRequestInput$])
+        combineLatest([this.controllerLightColorInput$, this.pedestrianRequestStarted$, this.pedestrianRequestInput$])
             .pipe(takeUntilDestroyed())
             .subscribe(
-                ([lightColorCycle, pedestrianRequestStarted, pedestrianRequest]) => {
+                ([controllerLightColor, pedestrianRequestStarted, pedestrianRequest]) => {
                     if (pedestrianRequestStarted) {
                         this.trafficLightColor = LightColor.Red;
                         this.pedestrianLightColor = LightColor.Green;
                         this.statusText = 'Pedestrian light is green';
                         this.requestsText = '';
                     } else {
-                        this.trafficLightColor = lightColorCycle!;
+                        this.trafficLightColor = controllerLightColor!;
                         this.pedestrianLightColor = LightColor.Red;
                         this.statusText = `Controller light`;
                         this.requestsText = pedestrianRequest ? 'Pedestrian green light requested' : '';
@@ -92,7 +92,7 @@ export class JunctionComponent {
     }
 
     private startCycleSubscription() {
-        return this.lightColorCycleInput$
+        return this.controllerLightColorInput$
                    .pipe(takeWhile((_, time) => time < CYCLE_NUM));
     }
 
